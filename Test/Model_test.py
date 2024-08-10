@@ -1,8 +1,8 @@
 import torch
 import matplotlib.pyplot as plt
 from Data.Stock_data import data
-from Environment.tradeEnv import stock_tradeEnv
 from Model.Deep_Q_Network import Q_Net, DQN_Agent
+from tradeEnv import portfolio_tradeEnv
 
 
 def Normalize(state):
@@ -20,12 +20,16 @@ def DQN_trade(stock_Name):
     # 智能体
     agent = DQN_Agent(state_dim=150, hidden_dim=30, action_dim=3, lr=0.001, device="cuda:0", gamma=0.95,
                       epsilon=0.01, target_update=10)
-    agent.load_state_dict(torch.load(r'..\Result\agent_dqn_' + stock_Name + '.pt'))
+
+    # 加载模型
+    agent.load_state_dict(torch.load(r'../Result/agent_dqn_' + stock_Name + '.pt'))
     # 训练数据
-    link = r'..\Data\\' + stock_Name + '.csv'
+    link = r'../Data/' + stock_Name + '.csv'
+
+    # 加载测试数据
     trade_df = data(link, window_length=15, t=2000).trade_data()
     # 训练环境
-    Env = stock_tradeEnv(day=0, balance=1, stock=trade_df, cost=0.003)
+    Env = portfolio_tradeEnv(day=0, balance=1, stock=trade_df, cost=0.003)
     return_List = []
     done = False
     episode_return = 0
